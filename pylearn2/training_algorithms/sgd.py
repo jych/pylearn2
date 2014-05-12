@@ -344,6 +344,8 @@ class SGD(TrainingAlgorithm):
                 lr_scalers.get(param, 1.) * grads[param]
                                     for param in params])))
 
+        updates = self.reset_h0(model, theano_args, updates)
+
         for param in params:
             if updates[param].name is None:
                 updates[param].name = 'sgd_update(' + param.name + ')'
@@ -368,6 +370,9 @@ class SGD(TrainingAlgorithm):
                                        on_unused_input='ignore',
                                        mode=self.theano_function_mode)
         self.params = params
+
+    def reset_h0(self, model, theano_args, updates):
+        pass
 
     def train(self, dataset):
         """
