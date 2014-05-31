@@ -4,7 +4,7 @@ Classes representing cost functions.
 Currently, these are primarily used to specify the objective function for
 the SGD and BGD training algorithms.
 """
-
+import ipdb
 import functools
 import logging
 import warnings

@@ -9,7 +9,7 @@ __credits__ = ["Ian Goodfellow, David Warde-Farley"]
 __license__ = "3-clause BSD"
 __maintainer__ = "Ian Goodfellow, David Warde-Farley"
 __email__ = "goodfeli@iro"
-
+import ipdb
 import logging
 import warnings
 import numpy as np
@@ -335,6 +335,8 @@ class SGD(TrainingAlgorithm):
             lr = learning_rate.get_value() * lr_scalers.get(param,1.)
             log.info('\t' + param_name + ': ' + str(lr))
 
+        updates = self.reset_h0(model, theano_args, updates)
+
         if self.learning_rule:
             updates.update(self.learning_rule.get_updates(
                 learning_rate, grads, lr_scalers))
@@ -343,8 +345,6 @@ class SGD(TrainingAlgorithm):
             updates.update( dict(safe_zip(params, [param - learning_rate * \
                 lr_scalers.get(param, 1.) * grads[param]
                                     for param in params])))
-
-        updates = self.reset_h0(model, theano_args, updates)
 
         for param in params:
             if updates[param].name is None:
@@ -362,7 +362,6 @@ class SGD(TrainingAlgorithm):
                     raise ValueError("debug value of %s contains nans" %
                             update.name)
 
-
         with log_timing(log, 'Compiling sgd_update'):
             self.sgd_update = function(theano_args,
                                        updates=updates,
@@ -372,7 +371,8 @@ class SGD(TrainingAlgorithm):
         self.params = params
 
     def reset_h0(self, model, theano_args, updates):
-        pass
+
+        return updates
 
     def train(self, dataset):
         """
