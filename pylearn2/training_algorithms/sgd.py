@@ -8,15 +8,9 @@ __authors__ = "Ian Goodfellow"
 __copyright__ = "Copyright 2010-2012, Universite de Montreal"
 __credits__ = ["Ian Goodfellow, David Warde-Farley"]
 __license__ = "3-clause BSD"
-<<<<<<< HEAD
-__maintainer__ = "Ian Goodfellow, David Warde-Farley"
-__email__ = "goodfeli@iro"
-import ipdb
-=======
 __maintainer__ = "David Warde-Farley"
 __email__ = "pylearn-dev@googlegroups"
 
->>>>>>> central/master
 import logging
 import warnings
 import numpy as np
@@ -382,9 +376,9 @@ class SGD(TrainingAlgorithm):
                                        name='sgd_update',
                                        on_unused_input='ignore',
                                        mode=self.theano_function_mode)
-        self.params = params
 
     def reset_h0(self, model, theano_args, updates):
+        self.params = params
 
         return updates
 
