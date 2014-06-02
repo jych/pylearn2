@@ -376,9 +376,9 @@ class SGD(TrainingAlgorithm):
                                        name='sgd_update',
                                        on_unused_input='ignore',
                                        mode=self.theano_function_mode)
+        self.params = params
 
     def reset_h0(self, model, theano_args, updates):
-        self.params = params
 
         return updates
 

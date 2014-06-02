@@ -5,13 +5,8 @@ __authors__ = "Ian Goodfellow"
 __copyright__ = "Copyright 2012-2013, Universite de Montreal"
 __credits__ = ["Ian Goodfellow", "David Warde-Farley"]
 __license__ = "3-clause BSD"
-<<<<<<< HEAD
-__maintainer__ = "Ian Goodfellow"
-import ipdb
-=======
 __maintainer__ = "LISA Lab"
 
->>>>>>> central/master
 import logging
 import math
 import sys
