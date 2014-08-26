@@ -21,7 +21,7 @@ import warnings
 
 import numpy as np
 
-from pylearn2.datasets import cache
+#from pylearn2.datasets import cache
 from pylearn2.utils.iteration import (
     FiniteDatasetIterator,
     resolve_iterator_class
