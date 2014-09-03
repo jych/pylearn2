@@ -32,6 +32,7 @@ __license__ = "3-clause BSD"
 __maintainer__ = "LISA Lab"
 __email__ = "pylearn-dev@googlegroups"
 
+import ipdb
 import functools, warnings
 import numpy as np
 import theano
@@ -1825,31 +1826,7 @@ class Conv2DSpace(SimplyTypedSpace):
                                         str(expected_shape),
                                         str(actual_shape)))
 
-    """
-    @functools.wraps(Space._format_as_impl)
-    def _format_as_impl(self, is_numeric, batch, space):
-        if isinstance(space, VectorSpace):
-            # We need to ensure that the resulting batch will always be
-            # the same in `space`, no matter what the axes of `self` are.
-            if self.axes != self.default_axes:
-                # The batch index goes on the first axis
-                assert self.default_axes[0] == 'b'
-                batch = batch.transpose(*[self.axes.index(axis)
-                                          for axis in self.default_axes])
-            result = batch.reshape((batch.shape[0],
-                                    self.get_total_dimension()))
-            if space.sparse:
-                result = _dense_to_sparse(result)
-
-        elif isinstance(space, Conv2DSpace):
-            result = Conv2DSpace.convert(batch, self.axes, space.axes)
-        else:
-            raise NotImplementedError("%s doesn't know how to format as %s"
-                                      % (str(self), str(space)))
-
-        return _cast(result, space.dtype)
-    """
-
+    @wraps(Space._format_as_impl)
     def _format_as_impl(self, is_numeric, batch, space):
         if isinstance(space, VectorSpace):
             # We need to ensure that the resulting batch will always be
@@ -2459,24 +2436,67 @@ class SequenceDataSpace(SimplyTypedSpace):
     def __str__(self):
         return '%s(%s)' % (self.__class__.__name__, self.space)
 
-    @wraps(Space._format_as_impl)
+    @functools.wraps(Space._format_as_impl)
     def _format_as_impl(self, is_numeric, batch, space):
         if space == self:
             return batch
-        elif isinstance(space, VectorSpace):
-            row = batch.shape[0] * batch.shape[1]
-            col = self.dim
-            result = tensor.reshape(batch,
-                                    newshape=[row, col],
-                                    ndim=2)
-            return _cast(result, space.dtype)
-        elif isinstance(space, Conv2DSpace):
-            #result = batch.dimshuffle(1, 2, 0, 'x')
-            result = batch.dimshuffle(1, 0, 'x', 2)
-            return _cast(result, space.dtype)
         else:
-            print 'Unexpected space', space
-            raise NotImplementedError
+            if isinstance(space, SequenceDataSpace):
+                if is_numeric:
+                    formatted_batch = np.transpose(np.asarray([
+                        self.space._format_as_impl(is_numeric, sample, space.space)
+                        for sample in np.transpose(batch, (1, 0, 2))
+                    ]), (1, 0, 2))
+                else:
+                    formatted_batch, _ = theano.scan(
+                        fn=lambda elem: self.space._format_as_impl(is_numeric,
+                                                                   elem,
+                                                                   space.space),
+                        sequences=[batch]
+                    )
+                return formatted_batch
+            elif isinstance(space, VectorSpace):
+                row = batch.shape[0] * batch.shape[1]
+                col = self.dim
+                result = tensor.reshape(batch,
+                                        newshape=[row, col],
+                                        ndim=2)
+                return _cast(result, space.dtype)
+            elif isinstance(space, Conv2DSpace):
+                result = batch.dimshuffle(1, 0, 'x', 2)
+                # Newly added part
+                b01c_shape = [result.shape[0],
+                              space.shape[0],
+                              space.shape[1],
+                              space.num_channels]
+                result = result.flatten()
+                result = tensor.reshape(result,
+                                        newshape=b01c_shape,
+                                        ndim=4)
+                # end of newly added part
+
+                return _cast(result, space.dtype)
+            else:
+                print 'Unexpected space', space
+                raise NotImplementedError
+
+    @functools.wraps(Space._check_sizes)
+    def _check_sizes(self, space):
+        """
+        Called by self._format_as(space), to check whether self and space
+        have compatible sizes. Throws a ValueError if they don't.
+        """
+        my_dimension = self.get_total_dimension()
+        other_dimension = space.get_total_dimension()
+        if my_dimension != other_dimension:
+            if isinstance(space, Conv2DSpace):
+                if my_dimension * space.shape[0] !=\
+                        other_dimension:
+                    raise ValueError(str(self)+" with total dimension " +
+                                     str(my_dimension) +
+                                     " can't format a batch into " +
+                                     str(space) + "because its total dimension is " +
+                                     str(other_dimension))
 
     @wraps(Space.make_theano_batch)
     def make_theano_batch(self, name=None, dtype=None, batch_size=None):
@@ -2498,24 +2518,6 @@ class SequenceDataSpace(SimplyTypedSpace):
     @wraps(Space.get_total_dimension)
     def get_total_dimension(self):
         return self.space.get_total_dimension()
-
-    @functools.wraps(Space._check_sizes)
-    def _check_sizes(self, space):
-        """
-        Called by self._format_as(space), to check whether self and space
-        have compatible sizes. Throws a ValueError if they don't.
-        """
-        my_dimension = self.get_total_dimension()
-        other_dimension = space.get_total_dimension()
-        if my_dimension != other_dimension:
-            if isinstance(space, Conv2DSpace):
-                if my_dimension * space.shape[0] * space.shape[1] !=\
-                        other_dimension:
-                    raise ValueError(str(self)+" with total dimension " +
-                                     str(my_dimension) +
-                                     " can't format a batch into " +
-                                     str(space) + "because its total dimension is " +
-                                     str(other_dimension))
 
 
 class SequenceMaskSpace(SimplyTypedSpace):
