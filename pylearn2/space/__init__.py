@@ -2405,7 +2405,6 @@ class SequenceSpace(CompositeSpace):
                     batch=batch,
                     space=space),
                 batch, 0)
-
         else:
             NotImplementedError("Can't convert SequenceSpace Theano variables")
         return rval
@@ -2498,12 +2497,18 @@ class SequenceDataSpace(SimplyTypedSpace):
                                      str(space) + "because its total dimension is " +
                                      str(other_dimension))
 
+    @functools.wraps(Space.get_origin_batch)
+    def get_origin_batch(self, batch_size, dtype=None):
+        dtype = self._clean_dtype_arg(dtype)
+        return np.zeros((batch_size, self.dim), dtype=dtype)
+
     @wraps(Space.make_theano_batch)
     def make_theano_batch(self, name=None, dtype=None, batch_size=None):
-        sequence = self.space.make_theano_batch(name=None, dtype=dtype,
-                                                batch_size=batch_size)
-        batch_tensor = tensor.TensorType(sequence.dtype,
-                                         (False,) + sequence.broadcastable)
+        rval = self.space.make_theano_batch(name=None, dtype=dtype,
+                                            batch_size=batch_size)
+        batch_tensor = tensor.TensorType(rval.dtype,
+                                         (False,) + rval.broadcastable)
+
         return batch_tensor(name)
 
     @wraps(Space._validate_impl)

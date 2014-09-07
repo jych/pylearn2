@@ -1,6 +1,7 @@
 """
 Iterator for RNN data
 """
+import ipdb
 from functools import wraps
 
 import numpy as np

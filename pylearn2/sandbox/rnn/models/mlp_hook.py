@@ -5,7 +5,8 @@ import functools
 import inspect
 import logging
 
-from pylearn2.sandbox.rnn.space import SequenceSpace, SequenceDataSpace
+#from pylearn2.sandbox.rnn.space import SequenceSpace, SequenceDataSpace
+from pylearn2.space import SequenceSpace, SequenceDataSpace
 from pylearn2.space import CompositeSpace
 from pylearn2.utils.track_version import MetaLibVersion
 
