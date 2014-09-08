@@ -7,9 +7,9 @@ from functools import wraps
 import numpy as np
 from theano import config
 
-from pylearn2.sandbox.rnn.space import SequenceDataSpace
-from pylearn2.sandbox.rnn.space import SequenceMaskSpace
-from pylearn2.space import CompositeSpace
+#from pylearn2.sandbox.rnn.space import SequenceDataSpace
+#from pylearn2.sandbox.rnn.space import SequenceMaskSpace
+from pylearn2.space import CompositeSpace, SequenceDataSpace, SequenceMaskSpace
 from pylearn2.utils import safe_izip
 from pylearn2.utils.iteration import FiniteDatasetIterator
 
