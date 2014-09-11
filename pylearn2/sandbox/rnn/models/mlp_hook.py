@@ -93,17 +93,20 @@ class RNNWrapper(MetaLibVersion):
             if self._requires_reshape:
                 if self._requires_unmask:
                     state_below, mask = state_below
-                input_shape = ([state_below.shape[0] *
-                                state_below.shape[1]] +
-                               [state_below.shape[i]
-                                for i in xrange(2, state_below.ndim)])
-                reshaped_state_below = state_below.reshape(input_shape)
-                reshaped_state = fprop(self, reshaped_state_below)
-                output_shape = ([state_below.shape[0],
-                                 state_below.shape[1]] +
-                                [reshaped_state.shape[i]
-                                 for i in xrange(1, reshaped_state.ndim)])
-                state = reshaped_state.reshape(output_shape)
+                if state_below.ndim > 2:
+                    input_shape = ([state_below.shape[0] *
+                                    state_below.shape[1]] +
+                                   [state_below.shape[i]
+                                    for i in xrange(2, state_below.ndim)])
+                    reshaped_state_below = state_below.reshape(input_shape)
+                    reshaped_state = fprop(self, reshaped_state_below)
+                    output_shape = ([state_below.shape[0],
+                                     state_below.shape[1]] +
+                                    [reshaped_state.shape[i]
+                                    for i in xrange(1, reshaped_state.ndim)])
+                    state = reshaped_state.reshape(output_shape)
+                else:
+                    state = fprop(self, state_below)
                 if self._requires_unmask:
                     return (state, mask)
                 else:
