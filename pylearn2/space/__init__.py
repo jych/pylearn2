@@ -2500,16 +2500,43 @@ class SequenceDataSpace(SimplyTypedSpace):
     @functools.wraps(Space.get_origin_batch)
     def get_origin_batch(self, batch_size, dtype=None):
         dtype = self._clean_dtype_arg(dtype)
-        return np.zeros((batch_size, self.dim), dtype=dtype)
+        # Set a number which is not equal to batch_size for comfort debugging
+        time_step = 5
+        return np.zeros((time_step, batch_size, self.dim), dtype=dtype)
 
     @wraps(Space.make_theano_batch)
     def make_theano_batch(self, name=None, dtype=None, batch_size=None):
+        """
         rval = self.space.make_theano_batch(name=None, dtype=dtype,
                                             batch_size=batch_size)
+
         batch_tensor = tensor.TensorType(rval.dtype,
                                          (False,) + rval.broadcastable)
+        ipdb.set_trace()
 
         return batch_tensor(name)
+
+        """
+        dtype = self._clean_dtype_arg(dtype)
+        broadcastable = [False] * 3
+        broadcastable[1] = (batch_size == 1)
+        broadcastable[2] = (self.dim == 1)
+        broadcastable = tuple(broadcastable)
+
+        rval = TensorType(dtype=dtype,
+                          broadcastable=broadcastable
+                          )(name=name)
+
+        if theano.config.compute_test_value != 'off':
+            if batch_size == 1:
+                n = 1
+            else:
+                # TODO: try to extract constant scalar value from batch_size
+                n = 4
+            rval.tag.test_value = self.get_origin_batch(batch_size=n,
+                                                        dtype=dtype)
+
+        return rval
 
     @wraps(Space._validate_impl)
     def _validate_impl(self, is_numeric, batch):

@@ -70,7 +70,7 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
                 retain.append(i)
                 if isinstance(subspace, SequenceDataSpace):
                     sequence_seen = True
-        if mask_seen != sequence_seen:
+        if mask_seen != sequence_seen and i + 1 != len(retain):
             raise ValueError("SequenceDatasetIterator was asked to iterate "
                              "over a sequence mask without data or vice versa")
         space = space.restrict(retain)
@@ -127,7 +127,7 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
                 rvals.append(rval)
 
                 # Create mask
-                rvals.append(self._create_mask(rval))
+                #rvals.append(self._create_mask(rval))
             else:
                 if fn:
                     rval = fn(rval)

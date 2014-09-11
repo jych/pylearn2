@@ -518,6 +518,7 @@ class MLP(Layer):
     @wraps(Layer.get_output_space)
     def get_output_space(self):
 
+        import ipdb; ipdb.set_trace()
         return self.layers[-1].get_output_space()
 
     @wraps(Layer.get_target_space)

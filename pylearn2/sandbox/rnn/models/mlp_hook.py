@@ -1,6 +1,7 @@
 """
 Code to hook into the MLP framework
 """
+import ipdb
 import functools
 import inspect
 import logging
@@ -303,8 +304,14 @@ class RNNWrapper(MetaLibVersion):
         @functools.wraps(get_output_space)
         def outer(self):
             if (not self.rnn_friendly and self._requires_reshape and
-                    not isinstance(get_output_space(self), SequenceSpace)):
-                return SequenceSpace(get_output_space(self))
+                    (not isinstance(get_output_space(self), SequenceSpace) and
+                        not isinstance(get_output_space(self), SequenceDataSpace))):
+                #ipdb.set_trace()
+            #if (not self.rnn_friendly and self._requires_reshape):
+                if isinstance(self.mlp.input_space, SequenceSpace):
+                    return SequenceSpace(get_output_space(self))
+                elif isinstance(self.mlp.input_space, SequenceDataSpace):
+                    return SequenceDataSpace(get_output_space(self))
             else:
                 return get_output_space(self)
         return outer
@@ -322,8 +329,14 @@ class RNNWrapper(MetaLibVersion):
         @functools.wraps(get_target_space)
         def outer(self):
             if (not self.rnn_friendly and self._requires_reshape and
-                    not isinstance(get_target_space(self), SequenceSpace)):
-                return SequenceSpace(get_target_space(self))
+                    (not isinstance(get_target_space(self), SequenceSpace) and
+                        not isinstance(get_target_space(self), SequenceDataSpace))):
+                #ipdb.set_trace()
+            #if (not self.rnn_friendly and self._requires_reshape):
+                if isinstance(self.mlp.input_space, SequenceSpace):
+                    return SequenceSpace(get_target_space(self))
+                elif isinstance(self.mlp.input_space, SequenceDataSpace):
+                    return SequenceDataSpace(get_target_space(self))
             else:
                 return get_target_space(self)
         return outer
