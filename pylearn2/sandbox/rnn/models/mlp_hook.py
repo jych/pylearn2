@@ -309,8 +309,6 @@ class RNNWrapper(MetaLibVersion):
             if (not self.rnn_friendly and self._requires_reshape and
                     (not isinstance(get_output_space(self), SequenceSpace) and
                         not isinstance(get_output_space(self), SequenceDataSpace))):
-                #ipdb.set_trace()
-            #if (not self.rnn_friendly and self._requires_reshape):
                 if isinstance(self.mlp.input_space, SequenceSpace):
                     return SequenceSpace(get_output_space(self))
                 elif isinstance(self.mlp.input_space, SequenceDataSpace):
@@ -334,8 +332,6 @@ class RNNWrapper(MetaLibVersion):
             if (not self.rnn_friendly and self._requires_reshape and
                     (not isinstance(get_target_space(self), SequenceSpace) and
                         not isinstance(get_target_space(self), SequenceDataSpace))):
-                #ipdb.set_trace()
-            #if (not self.rnn_friendly and self._requires_reshape):
                 if isinstance(self.mlp.input_space, SequenceSpace):
                     return SequenceSpace(get_target_space(self))
                 elif isinstance(self.mlp.input_space, SequenceDataSpace):
