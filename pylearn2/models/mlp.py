@@ -523,7 +523,7 @@ class MLP(Layer):
 
     @wraps(Layer.get_target_space)
     def get_target_space(self):
-        
+
         return self.layers[-1].get_target_space()
 
     @wraps(Layer.set_input_space)
@@ -1157,7 +1157,7 @@ class Softmax(Layer):
     layer_name : string
         Name of Softmax layers.
     irange : float
-        If specified, initialized each weight randomly in 
+        If specified, initialized each weight randomly in
         U(-irange, irange).
     istdev : float
         If specified, initialize each weight randomly from
@@ -1176,7 +1176,9 @@ class Softmax(Layer):
         inputs.
     max_col_norm : float
         Maximum norm for a column of the weight matrix.
-    init_bias_target_marginals : WRITEME
+    init_bias_target_marginals : dataset
+        Take the probability distribution of the targets into account to
+        intelligently initialize biases.
     binary_target_dim : int, optional
         If your targets are class labels (i.e. a binary vector) then set the
         number of targets here so that an IndexSpace of the proper dimension
@@ -1216,7 +1218,19 @@ class Softmax(Layer):
         if not no_affine:
             self.b = sharedX(np.zeros((n_classes,)), name='softmax_b')
             if init_bias_target_marginals:
-                marginals = init_bias_target_marginals.y.mean(axis=0)
+
+                y = init_bias_target_marginals.y
+                if init_bias_target_marginals.y_labels is None:
+                    marginals = y.mean(axis=0)
+                else:
+                    # compute class frequencies
+                    if np.max(y.shape) != np.prod(y.shape):
+                        raise AssertionError("Use of "
+                                             "`init_bias_target_marginals` "
+                                             "requires that each example has "
+                                             "a single label.")
+                    marginals = np.bincount(y.flat)/float(y.shape[0])
+
                 assert marginals.ndim == 1
                 b = pseudoinverse_softmax_numpy(marginals).astype(self.b.dtype)
                 assert b.ndim == 1
@@ -1512,6 +1526,10 @@ class Softmax(Layer):
             log_prob_of = (Y * log_prob)
 
         return log_prob_of
+<<<<<<< HEAD
+=======
+
+>>>>>>> central/master
 
     @wraps(Layer.cost)
     def cost(self, Y, Y_hat):
@@ -4438,7 +4456,7 @@ class CompositeLayer(Layer):
                                                  for layer in self.layers))
         self._target_space = CompositeSpace(tuple(layer.get_target_space()
                                                   for layer in self.layers))
-        
+
     @wraps(Layer.get_params)
     def get_params(self):
         rval = []

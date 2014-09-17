@@ -100,11 +100,22 @@ class RNNWrapper(MetaLibVersion):
                                     for i in xrange(2, state_below.ndim)])
                     reshaped_state_below = state_below.reshape(input_shape)
                     reshaped_state = fprop(self, reshaped_state_below)
-                    output_shape = ([state_below.shape[0],
-                                     state_below.shape[1]] +
-                                    [reshaped_state.shape[i]
-                                    for i in xrange(1, reshaped_state.ndim)])
-                    state = reshaped_state.reshape(output_shape)
+                    if isinstance(reshaped_state, tuple):
+                        output_shape = ([[state_below.shape[0],
+                                          state_below.shape[1]] +
+                                         [reshaped_state[j].shape[i]
+                                         for i in xrange(1, reshaped_state[j].ndim)]
+                                         for j in xrange(len(reshaped_state))])
+                        state = []
+                        for i in xrange(len(reshaped_state)):
+                            state.append(reshaped_state[i].reshape(output_shape[i]))
+                        state = tuple(state)
+                    else:
+                        output_shape = ([state_below.shape[0],
+                                         state_below.shape[1]] +
+                                        [reshaped_state.shape[i]
+                                         for i in xrange(1, reshaped_state.ndim)])
+                        state = reshaped_state.reshape(output_shape)
                 else:
                     state = fprop(self, state_below)
                 if self._requires_unmask:
@@ -149,11 +160,22 @@ class RNNWrapper(MetaLibVersion):
                             state_below_mask.flatten().nonzero()
                         ]
                 if state is not None:
-                    state_shape = ([state.shape[0] *
-                                    state.shape[1]] +
-                                   [state.shape[i]
-                                    for i in xrange(2, state.ndim)])
-                    state = state.reshape(state_shape)
+                    if isinstance(state, tuple):
+                        state_shape = ([[state[j].shape[0] *
+                                         state[j].shape[1]] +
+                                        [state[j].shape[i]
+                                        for i in xrange(2, state[j].ndim)]
+                                        for j in xrange(len(state))])
+                        dummy_state = []
+                        for i in xrange(len(state)):
+                            dummy_state.append(state[i].reshape(state_shape[i]))
+                        state = tuple(dummy_state)
+                    else:
+                        state_shape = ([state.shape[0] *
+                                        state.shape[1]] +
+                                       [state.shape[i]
+                                        for i in xrange(2, state.ndim)])
+                        state = state.reshape(state_shape)
                     if self._requires_unmask:
                         state = state[state_mask.flatten().nonzero()]
                 if targets is not None:
@@ -194,7 +216,16 @@ class RNNWrapper(MetaLibVersion):
                 input_shape = ([Y.shape[0] * Y.shape[1]] +
                                [Y.shape[i] for i in xrange(2, Y.ndim)])
                 reshaped_Y = Y.reshape(input_shape)
-                reshaped_Y_hat = Y_hat.reshape(input_shape)
+                if isinstance(Y_hat, tuple):
+                    input_shape = ([[Y.shape[0] * Y.shape[1]] +
+                                    [Y_hat[j].shape[i] for i in xrange(2, Y_hat[j].ndim)]
+                                    for j in xrange(len(Y_hat))])
+                    reshaped_Y_hat = []
+                    for i in xrange(len(Y_hat)):
+                        reshaped_Y_hat.append(Y_hat[i].reshape(input_shape[i]))
+                    reshaped_Y_hat = tuple(reshaped_Y_hat)
+                else:
+                    reshaped_Y_hat = Y_hat.reshape(input_shape)
                 # Here we need to take the indices of only the unmasked data
                 if self._requires_unmask:
                     return cost(self, reshaped_Y[Y_mask.flatten().nonzero()],
