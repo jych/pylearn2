@@ -1526,10 +1526,6 @@ class Softmax(Layer):
             log_prob_of = (Y * log_prob)
 
         return log_prob_of
-<<<<<<< HEAD
-=======
-
->>>>>>> central/master
 
     @wraps(Layer.cost)
     def cost(self, Y, Y_hat):
