@@ -24,7 +24,8 @@ WHITELIST = [
     'RectifiedLinear',
     'Softplus',
     'SpaceConverter',
-    'WindowLayer'
+    'WindowLayer',
+    'MDNLayer'
 ]
 
 # These can't be wrapped
@@ -93,19 +94,47 @@ class RNNWrapper(MetaLibVersion):
             if self._requires_reshape:
                 if self._requires_unmask:
                     state_below, mask = state_below
-                if state_below.ndim > 2:
-                    input_shape = ([state_below.shape[0] *
-                                    state_below.shape[1]] +
-                                   [state_below.shape[i]
-                                    for i in xrange(2, state_below.ndim)])
-                    reshaped_state_below = state_below.reshape(input_shape)
+                if isinstance(state_below, tuple):
+                    if state_below[0].ndim > 2:
+                        perform_reshape = 1
+                    else:
+                        perform_reshape = 0
+                else:
+                    if state_below.ndim > 2:
+                        perform_reshape = 1
+                    else:
+                        perform_reshape = 0
+                if perform_reshape:
+                    if isinstance(state_below, tuple):
+                        input_shape = ([[state_below[j].shape[0] *
+                                         state_below[j].shape[1]] +
+                                        [state_below[j].shape[i]
+                                         for i in xrange(2, state_below[j].ndim)]
+                                        for j in xrange(len(state_below))])
+                        dummy_state = []
+                        for i in xrange(len(state_below)):
+                            dummy_state.append(state_below[i].reshape(input_shape[i]))
+                        reshaped_state_below = tuple(dummy_state)
+                    else:
+                        input_shape = ([state_below.shape[0] *
+                                        state_below.shape[1]] +
+                                       [state_below.shape[i]
+                                        for i in xrange(2, state_below.ndim)])
+                        reshaped_state_below = state_below.reshape(input_shape)
                     reshaped_state = fprop(self, reshaped_state_below)
                     if isinstance(reshaped_state, tuple):
-                        output_shape = ([[state_below.shape[0],
-                                          state_below.shape[1]] +
-                                         [reshaped_state[j].shape[i]
-                                         for i in xrange(1, reshaped_state[j].ndim)]
-                                         for j in xrange(len(reshaped_state))])
+                        if isinstance(state_below, tuple):
+                            output_shape = ([[state_below[j].shape[0],
+                                              state_below[j].shape[1]] +
+                                             [reshaped_state[j].shape[i]
+                                              for i in xrange(1, reshaped_state[j].ndim)]
+                                             for j in xrange(len(reshaped_state))])
+                        else:
+                            output_shape = ([[state_below.shape[0],
+                                              state_below.shape[1]] +
+                                             [reshaped_state[j].shape[i]
+                                              for i in xrange(1, reshaped_state[j].ndim)]
+                                             for j in xrange(len(reshaped_state))])
                         state = []
                         for i in xrange(len(reshaped_state)):
                             state.append(reshaped_state[i].reshape(output_shape[i]))
