@@ -17,7 +17,6 @@ from pylearn2.space import NullSpace
 from pylearn2.utils.timing import log_timing, total_seconds
 from pylearn2.utils import sharedX
 
-
 log = logging.getLogger(__name__)
 
 

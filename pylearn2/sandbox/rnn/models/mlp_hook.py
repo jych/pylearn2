@@ -124,8 +124,8 @@ class RNNWrapper(MetaLibVersion):
                     reshaped_state = fprop(self, reshaped_state_below)
                     if isinstance(reshaped_state, tuple):
                         if isinstance(state_below, tuple):
-                            output_shape = ([[state_below[j].shape[0],
-                                              state_below[j].shape[1]] +
+                            output_shape = ([[state_below[-1].shape[0],
+                                              state_below[-1].shape[1]] +
                                              [reshaped_state[j].shape[i]
                                               for i in xrange(1, reshaped_state[j].ndim)]
                                              for j in xrange(len(reshaped_state))])
