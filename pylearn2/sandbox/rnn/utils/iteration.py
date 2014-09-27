@@ -53,9 +53,12 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
         # the parent constructor
         self._original_source = source
         mask_seen, sequence_seen = False, False
+        self.mask_needed = []
         retain = []
+        ipdb.set_trace()
         for i, (subspace, subsource) in enumerate(safe_izip(space.components,
                                                             source)):
+            ipdb.set_trace()
             if isinstance(subspace, SequenceMaskSpace):
                 if not subsource.endswith('_mask') or \
                         subsource[:-5] not in source:
@@ -66,6 +69,7 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
                                      "with `_mask` in order to match it to the"
                                      "correct SequenceDataSpace")
                 mask_seen = True
+                self.mask_needed.append(subsource[:-5])
             else:
                 retain.append(i)
                 if isinstance(subspace, SequenceDataSpace):
@@ -113,6 +117,7 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
                                                  self._raw_data,
                                                  self._convert):
             rval = data[next_index]
+            ipdb.set_trace()
             if isinstance(space, SequenceDataSpace):
                 # Add padding
                 max_sequence_length = max(len(sample) for sample
@@ -126,6 +131,7 @@ class SequenceDatasetIterator(FiniteDatasetIterator):
                     rval = fn(rval)
                 rvals.append(rval)
 
+                ipdb.set_trace()
                 # Create mask
                 #rvals.append(self._create_mask(rval))
             else:
