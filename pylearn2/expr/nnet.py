@@ -156,8 +156,10 @@ def kl(Y, Y_hat, batch_axis):
     term_1 = Y * T.nnet.softplus(-z)
     term_2 = (1 - Y) * T.nnet.softplus(z)
     """
-    term_1 = Y * T.nnet.softplus(-Y_hat)
-    term_2 = (1 - Y) * T.nnet.softplus(Y_hat)
+    #term_1 = Y * T.nnet.softplus(-Y_hat)
+    #term_2 = (1 - Y) * T.nnet.softplus(Y_hat)
+    term_1 = - Y * T.log(Y_hat)
+    term_2 = -(1 - Y) * T.log(1 - Y_hat)
 
     total = term_1 + term_2
     naxes = total.ndim
