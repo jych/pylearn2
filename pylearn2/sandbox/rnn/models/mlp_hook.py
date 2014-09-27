@@ -259,7 +259,8 @@ class RNNWrapper(MetaLibVersion):
                 if self._requires_unmask:
                     return cost(self, reshaped_Y[Y_mask.flatten().nonzero()],
                                 reshaped_Y_hat[Y_mask.flatten().nonzero()])
-                return cost(self, reshaped_Y, reshaped_Y_hat)
+                else:
+                    return cost(self, reshaped_Y, reshaped_Y_hat)
             else:  # Not RNN-friendly, but not requiring reshape
                 return cost(self, Y, Y_hat)
         return outer
