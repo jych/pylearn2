@@ -419,12 +419,12 @@ class SumOfCosts(Cost):
                                      '.get_monitoring_channels'.format(
                                          type(cost))))
 
-            value = cost.expr(model, cost_data, ** kwargs)
-            if value is not None:
-                name = ''
-                if hasattr(value, 'name') and value.name is not None:
-                    name = '_' + value.name
-                rval['term_' + str(i) + name] = value
+            #value = cost.expr(model, cost_data, ** kwargs)
+            #if value is not None:
+            #    name = ''
+            #    if hasattr(value, 'name') and value.name is not None:
+            #        name = '_' + value.name
+            #    rval['term_' + str(i) + name] = value
 
         return rval
 

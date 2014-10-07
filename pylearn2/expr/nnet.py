@@ -162,10 +162,12 @@ def kl(Y, Y_hat, batch_axis):
     term_2 = -(1 - Y) * T.log(1 - Y_hat)
 
     total = term_1 + term_2
-    naxes = total.ndim
-    axes_to_reduce = range(naxes)
-    del axes_to_reduce[batch_axis]
-    ave = total.mean(axis=axes_to_reduce)
+    #naxes = total.ndim
+    #axes_to_reduce = range(naxes)
+    #del axes_to_reduce[batch_axis]
+    #ave = total.mean(axis=axes_to_reduce)
+    total = total.sum(axis=1)
+    ave = total.sum()
 
     return ave
 
