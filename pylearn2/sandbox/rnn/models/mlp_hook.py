@@ -90,7 +90,7 @@ class RNNWrapper(MetaLibVersion):
             The fprop method to be wrapped
         """
         @functools.wraps(fprop)
-        def outer(self, state_below):
+        def outer(self, state_below, return_all=False):
             if self._requires_reshape:
                 if self._requires_unmask:
                     state_below, mask = state_below
@@ -152,7 +152,10 @@ class RNNWrapper(MetaLibVersion):
                 else:
                     return state
             else:  # Not RNN-friendly, but not requiring reshape
-                return fprop(self, state_below)
+                if return_all:
+                    return fprop(self, state_below, return_all)
+                else:
+                    return fprop(self, state_below)
         return outer
 
     @classmethod
