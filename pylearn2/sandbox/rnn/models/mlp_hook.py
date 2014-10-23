@@ -26,6 +26,7 @@ WHITELIST = [
     'SpaceConverter',
     'WindowLayer',
     'MDNLayer'
+    'MixtureDensityNetwork'
 ]
 
 # These can't be wrapped
