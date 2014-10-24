@@ -25,7 +25,7 @@ WHITELIST = [
     'Softplus',
     'SpaceConverter',
     'WindowLayer',
-    'MDNLayer'
+    'MDNLayer',
     'MixtureDensityNetwork'
 ]
 
@@ -141,10 +141,16 @@ class RNNWrapper(MetaLibVersion):
                             state.append(reshaped_state[i].reshape(output_shape[i]))
                         state = tuple(state)
                     else:
-                        output_shape = ([state_below.shape[0],
-                                         state_below.shape[1]] +
-                                        [reshaped_state.shape[i]
-                                         for i in xrange(1, reshaped_state.ndim)])
+                        if isinstance(state_below, tuple):
+                            output_shape = ([state_below[-1].shape[0],
+                                             state_below[-1].shape[1]] +
+                                            [reshaped_state.shape[i]
+                                             for i in xrange(1, reshaped_state.ndim)])
+                        else:
+                            output_shape = ([state_below.shape[0],
+                                             state_below.shape[1]] +
+                                            [reshaped_state.shape[i]
+                                             for i in xrange(1, reshaped_state.ndim)])
                         state = reshaped_state.reshape(output_shape)
                 else:
                     state = fprop(self, state_below)
