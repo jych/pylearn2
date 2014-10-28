@@ -25,8 +25,8 @@ WHITELIST = [
     'Softplus',
     'SpaceConverter',
     'WindowLayer',
-    'MDNLayer',
-    'MixtureDensityNetwork'
+    'MixtureDensityNetwork',
+    'MixtureVocoderNetwork'
 ]
 
 # These can't be wrapped
