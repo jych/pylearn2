@@ -609,7 +609,11 @@ class Monitor(object):
         if isinstance(val, (float, int, long)):
             val = np.cast[theano.config.floatX](val)
 
-        val = T.as_tensor_variable(val)
+        #val = T.as_tensor_variable(val)
+        if isinstance(val, tuple):
+            val = T.as_tensor_variable(val[0])
+        else:
+            val = T.as_tensor_variable(val)
 
         if data_specs is None:
             warnings.warn("parameter 'data_specs' should be provided when " +

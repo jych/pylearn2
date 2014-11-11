@@ -256,7 +256,8 @@ class RNNWrapper(MetaLibVersion):
                                [Y.shape[i] for i in xrange(2, Y.ndim)])
                 reshaped_Y = Y.reshape(input_shape)
                 if isinstance(Y_hat, tuple):
-                    input_shape = ([[Y.shape[0] * Y.shape[1]] +
+                    #input_shape = ([[Y.shape[0] * Y.shape[1]] +
+                    input_shape = ([[Y_hat[j].shape[0] * Y_hat[j].shape[1]] +
                                     [Y_hat[j].shape[i] for i in xrange(2, Y_hat[j].ndim)]
                                     for j in xrange(len(Y_hat))])
                     reshaped_Y_hat = []
