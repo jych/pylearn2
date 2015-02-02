@@ -220,7 +220,10 @@ class RNNWrapper(MetaLibVersion):
                                     "can happen if this function is called "
                                     "from within another wrapped function. "
                                     "Most likely this won't cause any problem")
-                        return cost(self, Y, Y_hat)
+                        try:
+                            return cost(self, Y, Y_hat, Y_mask.flatten())
+                        except:
+                            return cost(self, Y, Y_hat)
                 input_shape = ([Y.shape[0] * Y.shape[1]] +
                                [Y.shape[i] for i in xrange(2, Y.ndim)])
                 reshaped_Y = Y.reshape(input_shape)
@@ -240,8 +243,10 @@ class RNNWrapper(MetaLibVersion):
                     reshaped_Y_hat = Y_hat.reshape(input_shape)
                 # Here we need to take the indices of only the unmasked data
                 if self._requires_unmask:
+                    #return cost(self, Y, Y_hat, Y_mask.flatten())
                     return cost(self, reshaped_Y[Y_mask.flatten().nonzero()],
-                                reshaped_Y_hat[Y_mask.flatten().nonzero()])
+                                reshaped_Y_hat[Y_mask.flatten().nonzero()],
+                                Y_mask.flatten())
                 return cost(self, reshaped_Y, reshaped_Y_hat)
             else:  # Not RNN-friendly, but not requiring reshape
                 return cost(self, Y, Y_hat)
